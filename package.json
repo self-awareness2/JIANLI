@@ -1,0 +1,25 @@
+{
+  "name": "jiangxin-jianli",
+  "private": true,
+  "description": "匠芯简历 - AI智能简历制作平台",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "db:push": "cd server && npx prisma db push",
+    "db:generate": "cd server && npx prisma generate",
+    "db:studio": "cd server && npx prisma studio",
+    "build": "cd client && npm run build",
+    "prepare": "husky install",
+    "lint": "cd client && npm run lint",
+    "lint:fix": "cd client && npm run lint:fix",
+    "format": "cd client && npm run format",
+    "test": "cd client && npm run test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  }
+}

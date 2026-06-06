@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String    @default("")
+  avatar    String    @default("")
+  isPaid    Boolean   @default(false)
+  aiQuota   Int       @default(1000)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  resumes   Resume[]
+  payments  Payment[]
+}
+
+model Resume {
+  id         String          @id @default(cuid())
+  userId     String
+  title      String          @default("未命名简历")
+  template   String          @default("modern")
+  fontSize   Int             @default(14)
+  fontFamily String          @default("default")
+  lineHeight Float           @default(1.5)
+  margin     Int             @default(15)
+  theme      String          @default("light")
+  themeColor String          @default("#2563eb")
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections   ResumeSection[]
+}
+
+model ResumeSection {
+  id       String @id @default(cuid())
+  resumeId String
+  type     String
+  order    Int    @default(0)
+  data     String @default("{}")
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Float
+  status      String   @default("pending")
+  type        String   @default("membership") // membership | single_export
+  resumeId    String?  // 单次导出时关联的简历ID
+  signature   String?  // 订单签名防篡改
+  nonce       String?  // 防重放攻击随机数
+  expiresAt   DateTime? // 订单过期时间
+  paidAt      DateTime? // 支付完成时间
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exportToken ExportToken?
+}
+
+// 单次导出授权令牌（支付成功后生成，一次性使用）
+model ExportToken {
+  id          String   @id @default(cuid())
+  paymentId   String   @unique
+  userId      String
+  resumeId    String
+  token       String   @unique // 随机令牌
+  signature   String   // 签名防篡改
+  used        Boolean  @default(false)
+  usedAt      DateTime?
+  expiresAt   DateTime // 令牌过期时间（通常较短，如30分钟）
+  createdAt   DateTime @default(now())
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
