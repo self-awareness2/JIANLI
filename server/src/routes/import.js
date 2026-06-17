@@ -28,7 +28,7 @@ const upload = multer({
 async function extractText(buffer, mimetype) {
   if (mimetype === 'application/pdf') {
     const data = new Uint8Array(buffer);
-    const doc = await getDocument({ data, useSystemFonts: true }).promise;
+    const doc = await pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
     let text = '';
     for (let i = 1; i <= doc.numPages; i++) {
       const page = await doc.getPage(i);
